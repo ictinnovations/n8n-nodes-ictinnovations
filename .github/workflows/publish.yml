@@ -20,7 +20,9 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
-      - run: npm ci
+      # n8n-workflow pulls the native isolated-vm, which we never execute and
+      # which fails to compile on the runner. We only need its type declarations.
+      - run: npm ci --ignore-scripts
 
       - run: npm run build
 
