@@ -22,7 +22,7 @@ export class IctCore implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Work with ICTFax, ICTPBX and ICTDialer through the ICTCore REST API',
+		description: 'Work with ICTFax, ICTPBX and open source ICTDialer through the ICTCore REST API',
 		defaults: {
 			name: 'ICTCore',
 		},

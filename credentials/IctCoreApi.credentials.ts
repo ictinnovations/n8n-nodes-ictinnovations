@@ -16,7 +16,7 @@ export class IctCoreApi implements ICredentialType {
 			placeholder: 'https://pbx.example.com',
 			required: true,
 			description:
-				'Your server address without the /api suffix. The same credential works for ICTFax, ICTPBX and ICTDialer, since all three run on ICTCore.',
+				'Your server address without the /api suffix. The same credential works for ICTFax, ICTPBX and the open source ICTDialer, since all three run on ICTCore. For ICTDialer.com, use the ICTContact credential instead.',
 		},
 		{
 			displayName: 'Authentication',

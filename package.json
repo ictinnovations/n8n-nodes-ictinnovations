@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-ictinnovations",
   "version": "0.1.2",
-  "description": "n8n community nodes for ICTFax, ICTPBX, ICTDialer and ICTBroadcast. Send faxes, place calls, manage contacts and run campaigns from a workflow.",
+  "description": "n8n community nodes for ICTContact, ICTBroadcast, ICTFax and ICTPBX. Send faxes, place calls, manage contacts and run campaigns from a workflow.",
   "keywords": [
     "n8n-community-node-package",
     "n8n",
@@ -9,7 +9,9 @@
     "ictfax",
     "ictpbx",
     "ictdialer",
+    "ictcontact",
     "ictbroadcast",
+    "contact-center",
     "ictcore",
     "pbx",
     "voip",
@@ -51,11 +53,13 @@
     "n8nNodesApiVersion": 1,
     "credentials": [
       "dist/credentials/IctCoreApi.credentials.js",
-      "dist/credentials/IctBroadcastApi.credentials.js"
+      "dist/credentials/IctBroadcastApi.credentials.js",
+      "dist/credentials/IctContactApi.credentials.js"
     ],
     "nodes": [
       "dist/nodes/IctCore/IctCore.node.js",
-      "dist/nodes/IctBroadcast/IctBroadcast.node.js"
+      "dist/nodes/IctBroadcast/IctBroadcast.node.js",
+      "dist/nodes/IctContact/IctContact.node.js"
     ]
   },
   "devDependencies": {

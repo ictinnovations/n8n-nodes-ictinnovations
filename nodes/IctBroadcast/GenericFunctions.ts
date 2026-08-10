@@ -16,6 +16,10 @@ export interface Attachment {
 /**
  * ICTBroadcast is not shaped like REST. Every call is a POST to /rest/<Method>
  * carrying multipart form fields, and the method name is the whole API surface.
+ *
+ * ICTContact serves the identical surface from the identical paths, differing
+ * only in the PHP namespace behind it, so both nodes share this client and pick
+ * their credential by node type.
  */
 export async function ictBroadcastApiRequest(
 	this: IExecuteFunctions,
@@ -23,7 +27,10 @@ export async function ictBroadcastApiRequest(
 	parameters: IDataObject = {},
 	attachment?: Attachment,
 ): Promise<any> {
-	const credentials = await this.getCredentials('ictBroadcastApi');
+	const credentialName = this.getNode().type.endsWith('.ictContact')
+		? 'ictContactApi'
+		: 'ictBroadcastApi';
+	const credentials = await this.getCredentials(credentialName);
 	const baseUrl = (credentials.baseUrl as string).replace(/\/+$/, '');
 
 	const formData: IDataObject = {};
