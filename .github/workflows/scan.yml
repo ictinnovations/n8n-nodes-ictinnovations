@@ -16,9 +16,11 @@ jobs:
         with:
           node-version: '20'
 
-      # The scanner draws progress with carriage returns, which the Actions log
-      # drops entirely. Translate them so failures are readable.
+      # The scanner only writes its report to a TTY, so it prints nothing at all
+      # under Actions. Give it a pseudo-terminal and translate the carriage returns.
       - run: |
-          set -o pipefail
-          npx --yes @n8n/scan-community-package n8n-nodes-ictinnovations@${{ inputs.version }} 2>&1 | tr '\r' '\n'
+          script -qec "npx --yes @n8n/scan-community-package n8n-nodes-ictinnovations@${{ inputs.version }}" /dev/null > scan.out 2>&1
+          status=$?
+          tr '\r' '\n' < scan.out
+          exit $status
         shell: bash
