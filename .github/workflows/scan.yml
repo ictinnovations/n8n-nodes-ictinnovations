@@ -16,4 +16,9 @@ jobs:
         with:
           node-version: '20'
 
-      - run: npx --yes @n8n/scan-community-package n8n-nodes-ictinnovations@${{ inputs.version }}
+      # The scanner draws progress with carriage returns, which the Actions log
+      # drops entirely. Translate them so failures are readable.
+      - run: |
+          set -o pipefail
+          npx --yes @n8n/scan-community-package n8n-nodes-ictinnovations@${{ inputs.version }} 2>&1 | tr '\r' '\n'
+        shell: bash
