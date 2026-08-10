@@ -1,0 +1,71 @@
+{
+  "name": "n8n-nodes-ictinnovations",
+  "version": "0.1.0",
+  "description": "n8n community nodes for ICTFax, ICTPBX, ICTDialer and ICTBroadcast. Send faxes, place calls, manage contacts and run campaigns from a workflow.",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "fax",
+    "ictfax",
+    "ictpbx",
+    "ictdialer",
+    "ictbroadcast",
+    "ictcore",
+    "pbx",
+    "voip",
+    "freeswitch",
+    "asterisk",
+    "telephony",
+    "auto-dialer",
+    "call-center"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/ictinnovations/n8n-nodes-ictinnovations",
+  "author": {
+    "name": "Tahir Almas",
+    "email": "tahir@ictinnovations.com",
+    "url": "https://ictinnovations.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ictinnovations/n8n-nodes-ictinnovations.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ictinnovations/n8n-nodes-ictinnovations/issues"
+  },
+  "engines": {
+    "node": ">=20.15"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "rimraf dist && tsc && gulp build:icons",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist",
+    "index.js",
+    "!dist/tsconfig.tsbuildinfo"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/IctCoreApi.credentials.js",
+      "dist/credentials/IctBroadcastApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/IctCore/IctCore.node.js",
+      "dist/nodes/IctBroadcast/IctBroadcast.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "gulp": "^5.0.0",
+    "n8n-workflow": "*",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.5.4"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}
