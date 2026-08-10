@@ -4,8 +4,9 @@ import type {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	JsonObject,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 import { ictBroadcastApiRequest } from './GenericFunctions';
 
@@ -13,7 +14,7 @@ export class IctBroadcast implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'ICTBroadcast',
 		name: 'ictBroadcast',
-		icon: 'file:ictbroadcast.svg',
+		icon: { light: 'file:ictbroadcast.svg', dark: 'file:ictbroadcast.dark.svg' },
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
@@ -21,8 +22,9 @@ export class IctBroadcast implements INodeType {
 		defaults: {
 			name: 'ICTBroadcast',
 		},
-		inputs: ['main'],
-		outputs: ['main'],
+		usableAsTool: true,
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
 				name: 'ictBroadcastApi',
@@ -215,13 +217,7 @@ export class IctBroadcast implements INodeType {
 				noDataExpression: true,
 				displayOptions: { show: { resource: ['user'] } },
 				options: [
-					{ name: 'Add Credit', value: 'addCredit', action: 'Add credit to a user' },
 					{ name: 'Create', value: 'create', action: 'Create a user' },
-					{
-						name: 'Create Extension',
-						value: 'createExtension',
-						action: 'Create an extension for a user',
-					},
 					{ name: 'Delete', value: 'delete', action: 'Delete a user' },
 					{ name: 'Get', value: 'get', action: 'Get a user' },
 					{ name: 'List Roles', value: 'listRoles', action: 'List available roles' },
@@ -238,7 +234,7 @@ export class IctBroadcast implements INodeType {
 				displayOptions: {
 					show: {
 						resource: ['user'],
-						operation: ['get', 'update', 'delete', 'addCredit', 'createExtension'],
+						operation: ['get', 'update', 'delete'],
 					},
 				},
 			},
@@ -249,34 +245,6 @@ export class IctBroadcast implements INodeType {
 				default: '{}',
 				displayOptions: { show: { resource: ['user'], operation: ['create', 'update'] } },
 				description: 'User record as a JSON object, for example username, password, email, role',
-			},
-			{
-				displayName: 'Amount',
-				name: 'value',
-				type: 'number',
-				required: true,
-				default: 0,
-				displayOptions: { show: { resource: ['user'], operation: ['addCredit'] } },
-			},
-			{
-				displayName: 'Payment Options',
-				name: 'paymentOptions',
-				type: 'collection',
-				placeholder: 'Add option',
-				default: {},
-				displayOptions: { show: { resource: ['user'], operation: ['addCredit'] } },
-				options: [
-					{ displayName: 'Description', name: 'description', type: 'string', default: '' },
-					{ displayName: 'Type', name: 'type', type: 'string', default: '' },
-				],
-			},
-			{
-				displayName: 'Extension Fields',
-				name: 'extensionFields',
-				type: 'json',
-				default: '{}',
-				displayOptions: { show: { resource: ['user'], operation: ['createExtension'] } },
-				description: 'Extension record as a JSON object',
 			},
 		],
 	};
@@ -388,21 +356,6 @@ export class IctBroadcast implements INodeType {
 						});
 					} else if (operation === 'listRoles') {
 						responseData = await ictBroadcastApiRequest.call(this, 'User_Role_List');
-					} else if (operation === 'addCredit') {
-						responseData = await ictBroadcastApiRequest.call(this, 'User_Payment_Create', {
-							user_id: this.getNodeParameter('userId', i) as string,
-							value: this.getNodeParameter('value', i) as number,
-							...(this.getNodeParameter('paymentOptions', i, {}) as IDataObject),
-						});
-					} else if (operation === 'createExtension') {
-						responseData = await ictBroadcastApiRequest.call(this, 'User_Extension_Create', {
-							user_id: this.getNodeParameter('userId', i) as string,
-							extension: parseJson(
-								this.getNodeParameter('extensionFields', i, '{}'),
-								'Extension Fields',
-								i,
-							),
-						});
 					}
 				}
 
@@ -432,7 +385,11 @@ export class IctBroadcast implements INodeType {
 					});
 					continue;
 				}
-				throw error;
+				// Errors we raised ourselves already carry a useful message, so only
+				// raw transport failures get wrapped.
+				throw error instanceof NodeApiError || error instanceof NodeOperationError
+					? error
+					: new NodeApiError(this.getNode(), error as JsonObject);
 			}
 		}
 

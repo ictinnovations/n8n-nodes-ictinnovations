@@ -1,4 +1,11 @@
-import type { ICredentialType, INodeProperties } from 'n8n-workflow';
+import type {
+	ICredentialDataDecryptedObject,
+	ICredentialTestRequest,
+	ICredentialType,
+	IHttpRequestOptions,
+	Icon,
+	INodeProperties,
+} from 'n8n-workflow';
 
 export class IctCoreApi implements ICredentialType {
 	name = 'ictCoreApi';
@@ -6,6 +13,8 @@ export class IctCoreApi implements ICredentialType {
 	displayName = 'ICTCore API';
 
 	documentationUrl = 'https://ictpbx.com/ictpbx-rest-api/';
+
+	icon: Icon = { light: 'file:icons/ictcore.svg', dark: 'file:icons/ictcore.dark.svg' };
 
 	properties: INodeProperties[] = [
 		{
@@ -79,11 +88,42 @@ export class IctCoreApi implements ICredentialType {
 		},
 		{
 			displayName: 'Ignore SSL Issues',
-			name: 'allowUnauthorizedCerts',
+			name: 'ignoreSslIssues',
 			type: 'boolean',
 			default: false,
 			description:
 				'Whether to accept a self-signed certificate. Common on an on-premise PBX that was never given a public certificate.',
 		},
 	];
+
+	/**
+	 * ICTCore accepts Basic on every endpoint and a bearer JWT from
+	 * POST /authenticate, so the credential offers both and picks one here rather
+	 * than in every node.
+	 */
+	async authenticate(
+		credentials: ICredentialDataDecryptedObject,
+		requestOptions: IHttpRequestOptions,
+	): Promise<IHttpRequestOptions> {
+		requestOptions.skipSslCertificateValidation = credentials.ignoreSslIssues as boolean;
+		requestOptions.headers = { ...requestOptions.headers };
+
+		if (credentials.authentication === 'apiToken') {
+			requestOptions.headers.Authorization = `Bearer ${credentials.apiToken as string}`;
+		} else {
+			const pair = `${credentials.username as string}:${credentials.password as string}`;
+			requestOptions.headers.Authorization = `Basic ${Buffer.from(pair).toString('base64')}`;
+		}
+
+		return requestOptions;
+	}
+
+	// Listing contacts is the lightest authenticated read ICTCore offers.
+	test: ICredentialTestRequest = {
+		request: {
+			baseURL: '={{ $credentials.baseUrl.replace(/\\/+$/, "") }}/api',
+			url: '/contacts',
+			method: 'GET',
+		},
+	};
 }

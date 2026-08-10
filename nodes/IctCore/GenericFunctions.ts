@@ -2,11 +2,10 @@ import type {
 	IDataObject,
 	IExecuteFunctions,
 	IHttpRequestMethods,
+	IHttpRequestOptions,
 	ILoadOptionsFunctions,
-	IRequestOptions,
-	JsonObject,
 } from 'n8n-workflow';
-import { NodeApiError, NodeOperationError, sleep } from 'n8n-workflow';
+import { NodeOperationError, sleep } from 'n8n-workflow';
 
 type Ctx = IExecuteFunctions | ILoadOptionsFunctions;
 
@@ -16,20 +15,19 @@ export async function ictCoreApiRequest(
 	endpoint: string,
 	body: IDataObject | Buffer = {},
 	qs: IDataObject = {},
-	overrides: Partial<IRequestOptions> = {},
+	overrides: Partial<IHttpRequestOptions> = {},
 ): Promise<any> {
 	const credentials = await this.getCredentials('ictCoreApi');
 	const baseUrl = (credentials.baseUrl as string).replace(/\/+$/, '');
 
-	const options: IRequestOptions = {
+	const options: IHttpRequestOptions = {
 		method,
 		qs,
-		uri: `${baseUrl}/api${endpoint}`,
+		url: `${baseUrl}/api${endpoint}`,
 		json: true,
 		headers: {
 			Accept: 'application/json',
 		},
-		rejectUnauthorized: !credentials.allowUnauthorizedCerts,
 		...overrides,
 	};
 
@@ -37,20 +35,7 @@ export async function ictCoreApiRequest(
 		options.body = body;
 	}
 
-	if (credentials.authentication === 'apiToken') {
-		options.headers!.Authorization = `Bearer ${credentials.apiToken}`;
-	} else {
-		options.auth = {
-			user: credentials.username as string,
-			pass: credentials.password as string,
-		};
-	}
-
-	try {
-		return await this.helpers.request(options);
-	} catch (error) {
-		throw new NodeApiError(this.getNode(), error as JsonObject);
-	}
+	return await this.helpers.httpRequestWithAuthentication.call(this, 'ictCoreApi', options);
 }
 
 /**

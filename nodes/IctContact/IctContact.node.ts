@@ -18,11 +18,13 @@ export class IctContact implements INodeType {
 		...shared.description,
 		displayName: 'ICTContact',
 		name: 'ictContact',
-		icon: 'file:ictcontact.svg',
+		icon: { light: 'file:ictcontact.svg', dark: 'file:ictcontact.dark.svg' },
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Run ICTContact campaigns, users and contacts from a workflow',
 		defaults: {
 			name: 'ICTContact',
 		},
+		usableAsTool: true,
 		credentials: [
 			{
 				name: 'ictContactApi',

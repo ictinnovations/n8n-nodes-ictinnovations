@@ -1,10 +1,4 @@
-import type {
-	IDataObject,
-	IExecuteFunctions,
-	IRequestOptions,
-	JsonObject,
-} from 'n8n-workflow';
-import { NodeApiError } from 'n8n-workflow';
+import type { IDataObject, IExecuteFunctions, IHttpRequestOptions } from 'n8n-workflow';
 
 export interface Attachment {
 	name: string;
@@ -15,7 +9,7 @@ export interface Attachment {
 
 /**
  * ICTBroadcast is not shaped like REST. Every call is a POST to /rest/<Method>
- * carrying multipart form fields, and the method name is the whole API surface.
+ * carrying form fields, and the method name is the whole API surface.
  *
  * ICTContact serves the identical surface from the identical paths, differing
  * only in the PHP namespace behind it, so both nodes share this client and pick
@@ -33,54 +27,52 @@ export async function ictBroadcastApiRequest(
 	const credentials = await this.getCredentials(credentialName);
 	const baseUrl = (credentials.baseUrl as string).replace(/\/+$/, '');
 
-	const formData: IDataObject = {};
+	const fields: Array<[string, string]> = [];
 	for (const [key, value] of Object.entries(parameters)) {
 		if (value === undefined || value === null || value === '') continue;
-		formData[key] = typeof value === 'object' ? JSON.stringify(value) : String(value);
+		fields.push([key, typeof value === 'object' ? JSON.stringify(value) : String(value)]);
 	}
 
+	// Only the CSV import carries a file, and only that call needs multipart. PHP
+	// reads a urlencoded body into $_POST just the same, so the plain calls avoid
+	// the heavier encoding.
+	let body: FormData | URLSearchParams;
 	if (attachment) {
-		formData[attachment.name] = {
-			value: attachment.buffer,
-			options: {
-				filename: attachment.fileName,
-				contentType: attachment.mimeType,
-			},
-		};
+		const form = new FormData();
+		for (const [key, value] of fields) form.append(key, value);
+		form.append(
+			attachment.name,
+			new Blob([attachment.buffer], { type: attachment.mimeType }),
+			attachment.fileName,
+		);
+		body = form;
+	} else {
+		body = new URLSearchParams(fields);
 	}
 
-	const options: IRequestOptions = {
+	const options: IHttpRequestOptions = {
 		method: 'POST',
-		uri: `${baseUrl}/rest/${method}`,
-		formData,
+		url: `${baseUrl}/rest/${method}`,
+		body,
 		json: true,
 		headers: {
 			Accept: 'application/json',
 		},
-		rejectUnauthorized: !credentials.allowUnauthorizedCerts,
 	};
 
-	if (credentials.authentication === 'apiToken') {
-		options.headers!.Authorization = `Bearer ${credentials.apiToken}`;
-	} else {
-		options.auth = {
-			user: credentials.username as string,
-			pass: credentials.password as string,
-		};
-	}
+	const response = await this.helpers.httpRequestWithAuthentication.call(
+		this,
+		credentialName,
+		options,
+	);
 
-	try {
-		const response = await this.helpers.request(options);
-		// Some methods answer with a JSON string rather than a JSON body.
-		if (typeof response === 'string') {
-			try {
-				return JSON.parse(response);
-			} catch {
-				return { result: response };
-			}
+	// Some methods answer with a JSON string rather than a JSON body.
+	if (typeof response === 'string') {
+		try {
+			return JSON.parse(response);
+		} catch {
+			return { result: response };
 		}
-		return response;
-	} catch (error) {
-		throw new NodeApiError(this.getNode(), error as JsonObject);
 	}
+	return response;
 }

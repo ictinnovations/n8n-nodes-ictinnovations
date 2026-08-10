@@ -63,11 +63,16 @@
     ]
   },
   "devDependencies": {
+    "@n8n/eslint-plugin-community-nodes": "^0.28.0",
     "@types/node": "^20.19.0",
+    "eslint": "^9.29.0",
+    "eslint-plugin-n8n-nodes-base": "^2.0.0",
     "gulp": "^5.0.0",
+    "jsonc-eslint-parser": "^3.3.0",
     "n8n-workflow": "*",
     "rimraf": "^5.0.5",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.66.0"
   },
   "peerDependencies": {
     "n8n-workflow": "*"

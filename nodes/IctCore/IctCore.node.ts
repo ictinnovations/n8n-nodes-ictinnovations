@@ -4,8 +4,9 @@ import type {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	JsonObject,
 } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 import {
 	extractId,
@@ -18,7 +19,7 @@ export class IctCore implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'ICTCore',
 		name: 'ictCore',
-		icon: 'file:ictcore.svg',
+		icon: { light: 'file:ictcore.svg', dark: 'file:ictcore.dark.svg' },
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
@@ -26,8 +27,9 @@ export class IctCore implements INodeType {
 		defaults: {
 			name: 'ICTCore',
 		},
-		inputs: ['main'],
-		outputs: ['main'],
+		usableAsTool: true,
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
 				name: 'ictCoreApi',
@@ -666,7 +668,7 @@ export class IctCore implements INodeType {
 							`/documents/${documentId}/media`,
 							{},
 							{},
-							{ json: false, encoding: null },
+							{ json: false, encoding: 'arraybuffer' },
 						)) as Buffer;
 						binary = {
 							[binaryPropertyName]: await this.helpers.prepareBinaryData(
@@ -857,7 +859,11 @@ export class IctCore implements INodeType {
 					});
 					continue;
 				}
-				throw error;
+				// Errors we raised ourselves already carry a useful message, so only
+				// raw transport failures get wrapped.
+				throw error instanceof NodeApiError || error instanceof NodeOperationError
+					? error
+					: new NodeApiError(this.getNode(), error as JsonObject);
 			}
 		}
 

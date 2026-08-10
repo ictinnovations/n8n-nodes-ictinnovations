@@ -116,7 +116,7 @@ Both nodes expose the same operations.
 - Create, Delete
 
 **User**
-- Create, Update, Get, Delete, List Roles, Create Payment, Create Extension
+- Create, Update, Get, Delete, List Roles
 
 ICTBroadcast isn't shaped like REST. Every call is a POST to `/rest/<Method_Name>` carrying multipart form fields, so the node maps each operation to the matching method name rather than to a URL path.
 
