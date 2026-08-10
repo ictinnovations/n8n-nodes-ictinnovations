@@ -1,0 +1,22 @@
+name: Deprecate on npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: 'Deprecation message'
+        required: true
+        default: 'Split into n8n-nodes-ictcontact, n8n-nodes-ictbroadcast and n8n-nodes-ictcore. Install the one for your product.'
+
+jobs:
+  deprecate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: npm deprecate n8n-nodes-ictinnovations "${{ inputs.message }}"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
