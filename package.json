@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-ictinnovations",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "n8n community nodes for ICTFax, ICTPBX, ICTDialer and ICTBroadcast. Send faxes, place calls, manage contacts and run campaigns from a workflow.",
   "keywords": [
     "n8n-community-node-package",

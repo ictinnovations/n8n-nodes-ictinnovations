@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-base.ictCore",
+	"node": "n8n-nodes-ictinnovations.ictCore",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Communication", "Utility"],

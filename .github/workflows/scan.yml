@@ -1,0 +1,19 @@
+name: n8n community package scan
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Published version to scan'
+        required: true
+        default: 'latest'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npx --yes @n8n/scan-community-package n8n-nodes-ictinnovations@${{ inputs.version }}

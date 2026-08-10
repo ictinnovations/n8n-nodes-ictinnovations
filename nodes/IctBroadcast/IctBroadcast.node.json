@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-base.ictBroadcast",
+	"node": "n8n-nodes-ictinnovations.ictBroadcast",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Communication", "Marketing"],
