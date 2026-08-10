@@ -19,8 +19,10 @@ jobs:
       # The scanner only writes its report to a TTY, so it prints nothing at all
       # under Actions. Give it a pseudo-terminal and translate the carriage returns.
       - run: |
+          set +e
           script -qec "npx --yes @n8n/scan-community-package n8n-nodes-ictinnovations@${{ inputs.version }}" /dev/null > scan.out 2>&1
           status=$?
+          set -e
           tr '\r' '\n' < scan.out
           exit $status
         shell: bash
