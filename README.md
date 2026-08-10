@@ -1,5 +1,15 @@
 # n8n-nodes-ictinnovations
 
+> **Deprecated.** n8n verification allows one third-party service per package, so this one was split. Install the node for your product instead:
+>
+> | Package | For |
+> |---------|-----|
+> | [n8n-nodes-ictcontact](https://www.npmjs.com/package/n8n-nodes-ictcontact) | [ICTContact](https://ictcontact.com), [ICTDialer.com](https://ictdialer.com) |
+> | [n8n-nodes-ictbroadcast](https://www.npmjs.com/package/n8n-nodes-ictbroadcast) | [ICTBroadcast](https://ictbroadcast.com) |
+> | [n8n-nodes-ictcore](https://www.npmjs.com/package/n8n-nodes-ictcore) | [ICTFax](https://ictfax.com), [ICTPBX](https://ictpbx.com), [open source ICTDialer](https://github.com/ictinnovations/ictdialer) |
+>
+> The nodes, credentials and operations are unchanged, so a workflow moves across by installing the new package and re-picking the node.
+
 n8n community nodes for the [ICT Innovations](https://ictinnovations.com) telephony stack. Send faxes, place calls, manage contacts and run outbound campaigns straight from an n8n workflow.
 
 The package ships three nodes because the products behind them speak two different protocols:
